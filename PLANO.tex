@@ -14,6 +14,9 @@
 
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
+% Evita que identificadores longos em \texttt estourem a margem direita.
+\setlength{\emergencystretch}{3em}
+
 \title{\textbf{Plano do Projeto --- Gestão de Equipamentos}}
 \author{API REST em .NET --- Trabalho Final do Módulo 3 (Desenvolvimento em C\#)}
 \date{}
@@ -52,7 +55,7 @@ São 6 entidades (1 a mais que o mínimo). O grupo pode ajustar.
 
 \section{Arquitetura em camadas}
 
-\begin{Verbatim}[frame=single, fontsize=\small]
+\begin{Verbatim}[frame=single, fontsize=\footnotesize]
 Cliente / Swagger / Postman
         |
 GestaoEquipamentos.API            (controllers, Swagger, auth, middlewares, Program.cs)
@@ -67,9 +70,9 @@ PostgreSQL
 \end{Verbatim}
 
 \noindent
-A camada \texttt{GestaoEquipamentos.Domain} não referencia EF Core nem infraestrutura.
-\texttt{GestaoEquipamentos.Exceptions} é transversal: exceções customizadas e
-padronização de erros.
+A camada \texttt{GestaoEquipamentos.\allowbreak Domain} não referencia EF Core nem
+infraestrutura. \texttt{GestaoEquipamentos.\allowbreak Exceptions} é transversal:
+exceções customizadas e padronização de erros.
 
 \section{Divisão de tarefas (definida no grupo)}
 
@@ -112,7 +115,7 @@ prontos para cada responsável preencher. Nada foi escrito nelas de propósito.
   \item \textbf{Infra (Camila):} declarar os \texttt{DbSet} no \texttt{AppDbContext}, criar as configurations e a primeira migration.
   \item \textbf{Application (Paulo):} DTOs, interfaces e services do CRUD.
   \item \textbf{Auth (Pedro):} registro/login com JWT e hash de senha.
-  \item \textbf{API (Lucas/Pedro):} controllers, Swagger e wiring (\texttt{AddApplication} + \texttt{AddInfrastructure}).
+  \item \textbf{API (Lucas/Pedro):} registrar \texttt{AddApplication} e \texttt{AddInfrastructure}, criar os controllers e habilitar o Swagger.
   \item \textbf{Exceptions (Adriano):} exceções e middleware global de erro.
   \item \textbf{Testar e documentar:} Swagger/Postman e atualizar o README.
 \end{enumerate}
