@@ -1,0 +1,152 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage[hidelinks]{hyperref}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\title{\textbf{Plano do Projeto --- Gestão de Equipamentos}}
+\author{API REST em .NET --- Trabalho Final do Módulo 3 (Desenvolvimento em C\#)}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+Este documento é o guia do grupo: arquitetura, divisão de tarefas e o que cada
+pessoa precisa implementar.
+
+\section{Tema e domínio}
+
+Sistema de \textbf{Gestão de Equipamentos}: cadastro de equipamentos, suas categorias
+e localizações, registro de manutenções e empréstimos/alocações a usuários.
+
+\subsection*{Entidades sugeridas (mínimo de 5 exigido pelo professor)}
+
+\begin{tabularx}{\textwidth}{@{}l Y Y@{}}
+\toprule
+\textbf{Entidade} & \textbf{Descrição} & \textbf{Relacionamentos} \\
+\midrule
+\textbf{Usuario} & Pessoa que acessa o sistema (login/senha). & 1 Usuario $\to$ N Emprestimos \\
+\textbf{Equipamento} & Item gerenciado (notebook, projetor, etc.). & N $\to$ 1 Categoria; N $\to$ 1 Localizacao \\
+\textbf{Categoria} & Classificação do equipamento. & 1 Categoria $\to$ N Equipamentos \\
+\textbf{Localizacao} & Setor/sala onde o equipamento fica. & 1 Localizacao $\to$ N Equipamentos \\
+\textbf{Manutencao} & Registro de manutenção de um equipamento. & N $\to$ 1 Equipamento \\
+\textbf{Emprestimo} & Vínculo de um equipamento a um usuário por período. & N $\to$ 1 Equipamento; N $\to$ 1 Usuario \\
+\bottomrule
+\end{tabularx}
+
+\medskip
+\noindent
+São 6 entidades (1 a mais que o mínimo). O grupo pode ajustar.
+
+\section{Arquitetura em camadas}
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+Cliente / Swagger / Postman
+        |
+GestaoEquipamentos.API            (controllers, Swagger, auth, middlewares, Program.cs)
+        |
+GestaoEquipamentos.Application    (DTOs, services, interfaces, casos de uso, validacoes)
+        |
+GestaoEquipamentos.Domain         (entidades, enums, regras essenciais)
+        |
+GestaoEquipamentos.Infrastructure (DbContext, repositories, migrations, EF Core/Npgsql)
+        |
+PostgreSQL
+\end{Verbatim}
+
+\noindent
+A camada \texttt{GestaoEquipamentos.Domain} não referencia EF Core nem infraestrutura.
+\texttt{GestaoEquipamentos.Exceptions} é transversal: exceções customizadas e
+padronização de erros.
+
+\section{Divisão de tarefas (definida no grupo)}
+
+\begin{tabularx}{\textwidth}{@{}l l Y@{}}
+\toprule
+\textbf{Camada / Tema} & \textbf{Responsável} & \textbf{O que falta implementar} \\
+\midrule
+\textbf{Domain} & Lucas & Criar as entidades, enums e regras essenciais. \\
+\textbf{API} & Lucas / Pedro & Controllers, Swagger, middlewares, wiring no \texttt{Program.cs}. \\
+\textbf{Application} & Paulo & DTOs, interfaces de service, services/casos de uso, validações, \texttt{AddApplication}. \\
+\textbf{Infrastructure} & Camila & DbSets, configurations (\texttt{IEntityTypeConfiguration}), migrations, repositories específicos. \\
+\textbf{Exceptions} & Adriano & Exceções customizadas, modelo de erro e middleware de tratamento global. \\
+\textbf{Autenticação} & Pedro & Registro/login, hash de senha, geração e validação de token JWT, proteção de endpoints. \\
+\bottomrule
+\end{tabularx}
+
+\section{Estado atual do repositório (o que já está pronto)}
+
+\begin{itemize}[nosep]
+  \item Solution \texttt{.sln} com os 5 projetos e as referências entre camadas configuradas.
+  \item \textbf{Base da Infrastructure} (camada da Camila):
+  \begin{itemize}[nosep]
+    \item \texttt{AppDbContext} (aplica configurations automaticamente; DbSets a adicionar por entidade).
+    \item \texttt{AppDbContextFactory} (permite rodar migrations sem subir a API).
+    \item \texttt{Repository<T>} + \texttt{IRepository<T>} (CRUD genérico reutilizável).
+    \item \texttt{AddInfrastructure(IConfiguration)} registra o DbContext (Npgsql) e o repositório genérico.
+  \end{itemize}
+  \item \texttt{docker-compose.yml} para subir o PostgreSQL.
+  \item Build da solution limpo (0 erros, 0 avisos).
+\end{itemize}
+
+\noindent
+As camadas Domain, Application, Exceptions e API estão como projetos vazios,
+prontos para cada responsável preencher. Nada foi escrito nelas de propósito.
+
+\section{Próximos passos sugeridos (ordem)}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Domain (Lucas):} modelar as entidades e enums.
+  \item \textbf{Infra (Camila):} declarar os \texttt{DbSet} no \texttt{AppDbContext}, criar as configurations e a primeira migration.
+  \item \textbf{Application (Paulo):} DTOs, interfaces e services do CRUD.
+  \item \textbf{Auth (Pedro):} registro/login com JWT e hash de senha.
+  \item \textbf{API (Lucas/Pedro):} controllers, Swagger e wiring (\texttt{AddApplication} + \texttt{AddInfrastructure}).
+  \item \textbf{Exceptions (Adriano):} exceções e middleware global de erro.
+  \item \textbf{Testar e documentar:} Swagger/Postman e atualizar o README.
+\end{enumerate}
+
+\section{Requisitos obrigatórios do professor (checklist)}
+
+\begin{itemize}[label=$\square$, nosep]
+  \item Autenticação (JWT recomendado) com login e registro.
+  \item Mínimo de 5 entidades com relacionamentos.
+\end{itemize}
+\begin{itemize}[label=$\boxtimes$, nosep]
+  \item PostgreSQL como banco (docker-compose pronto).
+  \item EF Core com provider Npgsql.
+  \item Solução separada em API, Application, Exceptions, Domain e Infrastructure.
+\end{itemize}
+\begin{itemize}[label=$\square$, nosep]
+  \item DTOs para entrada e saída.
+  \item Regras de negócio em services (não nos controllers).
+\end{itemize}
+\begin{itemize}[label=$\boxtimes$, nosep]
+  \item Acesso a dados na Infrastructure (DbContext/repositories).
+\end{itemize}
+\begin{itemize}[label=$\square$, nosep]
+  \item Swagger habilitado.
+\end{itemize}
+\begin{itemize}[label=$\boxtimes$, nosep]
+  \item Repositório Git.
+\end{itemize}
+\begin{itemize}[label=$\square$, nosep]
+  \item Migrations entregues.
+  \item Endpoints: 2 de auth, 4 de CRUD, 2 de filtro, 1 de relacionamento, 3+ protegidos.
+\end{itemize}
+
+\bigskip
+\noindent\textit{Legenda: $\boxtimes$ concluído \quad $\square$ pendente.}
+
+\end{document}

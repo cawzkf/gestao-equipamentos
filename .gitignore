@@ -1,0 +1,33 @@
+# ---- .NET ----
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Rider / VS / VS Code
+.idea/
+.vs/
+*.swp
+
+# User-specific / segredos
+appsettings.*.local.json
+*.env
+.env
+
+# Logs
+*.log
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
