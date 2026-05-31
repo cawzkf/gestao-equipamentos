@@ -98,4 +98,4 @@ O Swagger ficará disponível em `https://localhost:<porta>/swagger` (ambiente D
 
 Camada Infrastructure concluída: repositórios, DbContext/DbSets, configurations,
 relacionamentos e migrations aplicadas. Demais camadas em desenvolvimento —
-ver progresso e responsáveis em **[PLANO.tex](PLANO.tex)**.
+ver progresso e responsáveis em **[PLANO.tex](PLANO.pdf)**.
