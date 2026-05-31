@@ -1,3 +1,4 @@
+using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Infrastructure.Persistence;
 using GestaoEquipamentos.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ public static class DependencyInjection
 
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 
         return services;
     }

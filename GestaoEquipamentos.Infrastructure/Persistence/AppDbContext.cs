@@ -1,3 +1,4 @@
+using GestaoEquipamentos.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -22,6 +23,8 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
+
+    public DbSet<Equipment> Equipments => Set<Equipment>();
 
     /// <summary>
     /// Configura o modelo do banco aplicando todas as classes de mapeamento
