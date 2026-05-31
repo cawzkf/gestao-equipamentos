@@ -11,5 +11,11 @@ public class EquipmentHistoryConfiguration : IEntityTypeConfiguration<EquipmentH
         builder.Property(h => h.Action)
             .IsRequired()
             .HasMaxLength(200);
+        
+        builder.HasOne<Equipment>()
+            .WithMany()
+            .HasForeignKey(h => h.EquipmentId);
+
     }
+    
 }
