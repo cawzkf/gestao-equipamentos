@@ -22,7 +22,7 @@ GestaoEquipamentos/
 └── docker-compose.yml                  # PostgreSQL
 ```
 
-> Divisão de tarefas, modelagem das entidades e próximos passos estão em **[PLANO.tex](PLANO.tex)**.
+> Divisão de tarefas, modelagem das entidades e próximos passos estão em **[PLANO.pdf](PLANO.pdf)**.
 
 ## Pré-requisitos
 
@@ -88,14 +88,30 @@ O Swagger ficará disponível em `https://localhost:<porta>/swagger` (ambiente D
 
 ## Configuração
 
-- **Connection string:** a API lê `ConnectionStrings:DefaultConnection` (de `appsettings.json`
-  ou de variável de ambiente). A camada de Infra é registrada via
-  `builder.Services.AddInfrastructure(builder.Configuration)`.
-- A `AppDbContextFactory` (design-time) usa a variável de ambiente `CONNECTION_STRING`
-  e, na ausência dela, um padrão de desenvolvimento igual ao do docker-compose.
+A connection string vem de fontes diferentes conforme o ambiente:
+
+- **Desenvolvimento:** já vem pronta em `appsettings.Development.json` (banco local do
+  docker-compose, porta 5433). Basta `dotnet run` — não precisa configurar nada.
+- **Produção:** o `appsettings.json` base **não contém credenciais**. A connection string
+  é lida de variável de ambiente. Copie `config/.env.example` para `config/.env.prod`
+  (ignorado pelo git) e preencha:
+  - `ConnectionStrings__DefaultConnection` — usada pela API.
+  - `CONNECTION_STRING` — usada pelas migrations (`AppDbContextFactory`).
+
+Para carregar o `config/.env.prod` antes de rodar (PowerShell):
+
+```powershell
+Get-Content config/.env.prod | Where-Object { $_ -match '=' -and $_ -notmatch '^#' } | ForEach-Object {
+    $k, $v = $_ -split '=', 2
+    [Environment]::SetEnvironmentVariable($k, $v)
+}
+dotnet run --project GestaoEquipamentos.API
+```
+
+A camada de Infra é registrada via `builder.Services.AddInfrastructure(builder.Configuration)`.
 
 ## Status
 
 Camada Infrastructure concluída: repositórios, DbContext/DbSets, configurations,
 relacionamentos e migrations aplicadas. Demais camadas em desenvolvimento —
-ver progresso e responsáveis em **[PLANO.tex](PLANO.pdf)**.
+ver progresso e responsáveis em **[PLANO.pdf](PLANO.pdf)**.
