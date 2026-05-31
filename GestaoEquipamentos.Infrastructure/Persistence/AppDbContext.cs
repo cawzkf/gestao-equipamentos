@@ -25,6 +25,10 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Equipment> Equipments => Set<Equipment>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<EquipmentHistory> EquipmentHistories => Set<EquipmentHistory>();
+    public DbSet<User> Users => Set<User>();
 
     /// <summary>
     /// Configura o modelo do banco aplicando todas as classes de mapeamento
