@@ -89,4 +89,4 @@ O Swagger ficará disponível em `https://localhost:<porta>/swagger` (ambiente D
 ## Status
 
 Setup inicial e base da Infraestrutura prontos. Demais camadas em desenvolvimento —
-ver progresso e responsáveis em **[PLANO.tex](PLANO.tex)**.
+ver progresso e responsáveis em **[PLANO.tex](PLANO.pdf)**.
