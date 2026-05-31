@@ -46,10 +46,12 @@ Banco padrão (definido no `docker-compose.yml` e na connection string):
 | Parâmetro | Valor |
 |-----------|-------|
 | Host | localhost |
-| Porta | 5432 |
+| Porta | 5433 |
 | Database | gestao_equipamentos |
 | Usuário | postgres |
 | Senha | postgres |
+
+> A porta do host é **5433** (a 5432 costuma estar ocupada por um Postgres local). Dentro do container continua 5432.
 
 ### 2. Restaurar e compilar
 
@@ -57,18 +59,24 @@ Banco padrão (definido no `docker-compose.yml` e na connection string):
 dotnet build
 ```
 
-### 3. Migrations (após as entidades existirem)
+### 3. Aplicar as migrations
 
-Os comandos abaixo rodam a partir do projeto de Infraestrutura (há uma
-`AppDbContextFactory` que permite gerar migrations sem subir a API):
+As migrations já estão no repositório. Para criar as tabelas no banco, basta aplicá-las:
 
 ```bash
-# criar a primeira migration
-dotnet ef migrations add InitialCreate --project GestaoEquipamentos.Infrastructure
-
-# aplicar no banco
 dotnet ef database update --project GestaoEquipamentos.Infrastructure
 ```
+
+Para gerar uma nova migration depois de mudar entidades ou configurations:
+
+```bash
+dotnet ef migrations add NomeDaMigration --project GestaoEquipamentos.Infrastructure
+```
+
+Há uma `AppDbContextFactory` que permite rodar esses comandos sem subir a API.
+
+Migrations já aplicadas: `InitialCreate`, `ConfigureEquipment`,
+`ConfigureRemainingEntities`, `AddEquipmentHistoryForeignKey`.
 
 ### 4. Rodar a API
 
@@ -88,5 +96,6 @@ O Swagger ficará disponível em `https://localhost:<porta>/swagger` (ambiente D
 
 ## Status
 
-Setup inicial e base da Infraestrutura prontos. Demais camadas em desenvolvimento —
+Camada Infrastructure concluída: repositórios, DbContext/DbSets, configurations,
+relacionamentos e migrations aplicadas. Demais camadas em desenvolvimento —
 ver progresso e responsáveis em **[PLANO.tex](PLANO.tex)**.
