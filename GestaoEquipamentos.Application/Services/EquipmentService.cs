@@ -20,6 +20,12 @@ public class EquipmentService : IEquipmentService
         return equipments.Select(MapToDto);
     }
 
+    public async Task<IEnumerable<EquipmentDto>> GetByCategoryIdAsync(int categoryId)
+    {
+        var equipments = await _equipmentRepository.GetByCategoryIdAsync(categoryId);
+        return equipments.Select(MapToDto);
+    }
+
     public async Task<EquipmentDto?> GetByIdAsync(int id)
     {
         var equipment = await _equipmentRepository.GetByIdAsync(id);

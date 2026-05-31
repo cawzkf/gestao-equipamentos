@@ -5,6 +5,7 @@ namespace GestaoEquipamentos.Application.Interfaces;
 public interface IEquipmentService
 {
     Task<IEnumerable<EquipmentDto>> GetAllAsync();
+    Task<IEnumerable<EquipmentDto>> GetByCategoryIdAsync(int categoryId);
     Task<EquipmentDto?> GetByIdAsync(int id);
     Task<EquipmentDto> CreateAsync(CreateEquipmentDto dto);
     Task UpdateAsync(int id, UpdateEquipmentDto dto);
