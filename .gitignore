@@ -24,6 +24,9 @@ x86/
 appsettings.*.local.json
 *.env
 .env
+# Arquivos de ambiente com valores reais (mantém apenas o config/.env.example)
+config/.env.prod
+*.env.prod
 
 # Logs
 *.log
