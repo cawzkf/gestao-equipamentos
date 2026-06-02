@@ -112,6 +112,10 @@ A camada de Infra é registrada via `builder.Services.AddInfrastructure(builder.
 
 ## Status
 
+Setup inicial e base da Infraestrutura prontos. Demais camadas em desenvolvimento —
+ver progresso e responsáveis em **[PLANO.tex](PLANO.pdf)**.
+
 Camada Infrastructure concluída: repositórios, DbContext/DbSets, configurations,
 relacionamentos e migrations aplicadas. Demais camadas em desenvolvimento —
 ver progresso e responsáveis em **[PLANO.pdf](PLANO.pdf)**.
+
