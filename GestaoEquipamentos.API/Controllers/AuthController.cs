@@ -21,30 +21,16 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        try
-        {
-            var token = await _authService.RegisterAsync(dto);
-            return Ok(token);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
+        var token = await _authService.RegisterAsync(dto);
+        return Ok(token);
     }
 
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        try
-        {
-            var token = await _authService.LoginAsync(dto);
-            return Ok(token);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(new { message = ex.Message });
-        }
+        var token = await _authService.LoginAsync(dto);
+        return Ok(token);
     }
 
     [HttpGet("me")]
