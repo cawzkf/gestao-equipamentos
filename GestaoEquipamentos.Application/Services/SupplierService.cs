@@ -1,6 +1,7 @@
 using GestaoEquipamentos.Application.DTOs;
 using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Domain.Entities;
+using GestaoEquipamentos.Exceptions;
 
 namespace GestaoEquipamentos.Application.Services;
 
@@ -19,10 +20,11 @@ public class SupplierService : ISupplierService
         return suppliers.Select(MapToDto);
     }
 
-    public async Task<SupplierDto?> GetByIdAsync(int id)
+    public async Task<SupplierDto> GetByIdAsync(int id)
     {
-        var supplier = await _repository.GetByIdAsync(id);
-        return supplier is null ? null : MapToDto(supplier);
+        var supplier = await _repository.GetByIdAsync(id)
+            ?? throw new NotFoundException("Fornecedor", id);
+        return MapToDto(supplier);
     }
 
     public async Task<SupplierDto> CreateAsync(CreateSupplierDto dto)
@@ -40,7 +42,7 @@ public class SupplierService : ISupplierService
     public async Task UpdateAsync(int id, UpdateSupplierDto dto)
     {
         var supplier = await _repository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Fornecedor não encontrado.");
+            ?? throw new NotFoundException("Fornecedor", id);
 
         supplier.Name = dto.Name;
         supplier.ContactEmail = dto.ContactEmail;
@@ -50,7 +52,7 @@ public class SupplierService : ISupplierService
     public async Task DeleteAsync(int id)
     {
         var supplier = await _repository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Fornecedor não encontrado.");
+            ?? throw new NotFoundException("Fornecedor", id);
 
         await _repository.DeleteAsync(supplier);
     }

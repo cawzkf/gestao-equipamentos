@@ -1,6 +1,7 @@
 using GestaoEquipamentos.Application.DTOs;
 using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Domain.Entities;
+using GestaoEquipamentos.Exceptions;
 
 namespace GestaoEquipamentos.Application.Services;
 
@@ -19,10 +20,11 @@ public class CategoryService : ICategoryService
         return categories.Select(MapToDto);
     }
 
-    public async Task<CategoryDto?> GetByIdAsync(int id)
+    public async Task<CategoryDto> GetByIdAsync(int id)
     {
-        var category = await _repository.GetByIdAsync(id);
-        return category is null ? null : MapToDto(category);
+        var category = await _repository.GetByIdAsync(id)
+            ?? throw new NotFoundException("Categoria", id);
+        return MapToDto(category);
     }
 
     public async Task<CategoryDto> CreateAsync(CreateCategoryDto dto)
@@ -35,7 +37,7 @@ public class CategoryService : ICategoryService
     public async Task UpdateAsync(int id, UpdateCategoryDto dto)
     {
         var category = await _repository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Categoria não encontrada.");
+            ?? throw new NotFoundException("Categoria", id);
 
         category.Name = dto.Name;
         await _repository.UpdateAsync(category);
@@ -44,7 +46,7 @@ public class CategoryService : ICategoryService
     public async Task DeleteAsync(int id)
     {
         var category = await _repository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Categoria não encontrada.");
+            ?? throw new NotFoundException("Categoria", id);
 
         await _repository.DeleteAsync(category);
     }

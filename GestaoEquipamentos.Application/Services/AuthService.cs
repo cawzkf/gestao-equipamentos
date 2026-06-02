@@ -4,6 +4,7 @@ using System.Text;
 using GestaoEquipamentos.Application.DTOs;
 using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Domain.Entities;
+using GestaoEquipamentos.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -24,7 +25,7 @@ public class AuthService : IAuthService
     {
         var existing = await _userRepository.GetByEmailAsync(dto.Email);
         if (existing is not null)
-            throw new InvalidOperationException("E-mail já está em uso.");
+            throw new ConflictException("E-mail já está em uso.");
 
         var user = new User
         {
@@ -40,10 +41,10 @@ public class AuthService : IAuthService
     public async Task<AuthTokenDto> LoginAsync(LoginDto dto)
     {
         var user = await _userRepository.GetByEmailAsync(dto.Email)
-            ?? throw new UnauthorizedAccessException("Credenciais inválidas.");
+            ?? throw new AuthenticationException("Credenciais inválidas.");
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            throw new UnauthorizedAccessException("Credenciais inválidas.");
+            throw new AuthenticationException("Credenciais inválidas.");
 
         return GenerateToken(user);
     }

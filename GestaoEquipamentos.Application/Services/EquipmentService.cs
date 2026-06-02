@@ -2,6 +2,7 @@
 using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Domain.Entities;
 using GestaoEquipamentos.Domain.Enums;
+using GestaoEquipamentos.Exceptions;
 
 namespace GestaoEquipamentos.Application.Services;
 
@@ -26,10 +27,11 @@ public class EquipmentService : IEquipmentService
         return equipments.Select(MapToDto);
     }
 
-    public async Task<EquipmentDto?> GetByIdAsync(int id)
+    public async Task<EquipmentDto> GetByIdAsync(int id)
     {
-        var equipment = await _equipmentRepository.GetByIdAsync(id);
-        return equipment is null ? null : MapToDto(equipment);
+        var equipment = await _equipmentRepository.GetByIdAsync(id)
+            ?? throw new NotFoundException("Equipamento", id);
+        return MapToDto(equipment);
     }
 
     public async Task<EquipmentDto> CreateAsync(CreateEquipmentDto dto)
@@ -52,7 +54,7 @@ public class EquipmentService : IEquipmentService
     public async Task UpdateAsync(int id, UpdateEquipmentDto dto)
     {
         var equipment = await _equipmentRepository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Equipamento não encontrado.");
+            ?? throw new NotFoundException("Equipamento", id);
 
         equipment.Name = dto.Name;
         equipment.SerialNumber = dto.SerialNumber;
@@ -68,7 +70,7 @@ public class EquipmentService : IEquipmentService
     public async Task DeleteAsync(int id)
     {
         var equipment = await _equipmentRepository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Equipamento não encontrado.");
+            ?? throw new NotFoundException("Equipamento", id);
 
         await _equipmentRepository.DeleteAsync(equipment);
     }
