@@ -22,7 +22,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         var connectionString =
             Environment.GetEnvironmentVariable("CONNECTION_STRING")
-            ?? "Host=localhost;Port=5432;Database=gestao_equipamentos;Username=postgres;Password=postgres";
+            ?? "Host=localhost;Port=5433;Database=gestao_equipamentos;Username=postgres;Password=postgres";
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(connectionString)

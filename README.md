@@ -22,7 +22,7 @@ GestaoEquipamentos/
 └── docker-compose.yml                  # PostgreSQL
 ```
 
-> Divisão de tarefas, modelagem das entidades e próximos passos estão em **[PLANO.tex](PLANO.tex)**.
+> Divisão de tarefas, modelagem das entidades e próximos passos estão em **[PLANO.pdf](PLANO.pdf)**.
 
 ## Pré-requisitos
 
@@ -46,10 +46,12 @@ Banco padrão (definido no `docker-compose.yml` e na connection string):
 | Parâmetro | Valor |
 |-----------|-------|
 | Host | localhost |
-| Porta | 5432 |
+| Porta | 5433 |
 | Database | gestao_equipamentos |
 | Usuário | postgres |
 | Senha | postgres |
+
+> A porta do host é **5433** (a 5432 costuma estar ocupada por um Postgres local). Dentro do container continua 5432.
 
 ### 2. Restaurar e compilar
 
@@ -57,18 +59,24 @@ Banco padrão (definido no `docker-compose.yml` e na connection string):
 dotnet build
 ```
 
-### 3. Migrations (após as entidades existirem)
+### 3. Aplicar as migrations
 
-Os comandos abaixo rodam a partir do projeto de Infraestrutura (há uma
-`AppDbContextFactory` que permite gerar migrations sem subir a API):
+As migrations já estão no repositório. Para criar as tabelas no banco, basta aplicá-las:
 
 ```bash
-# criar a primeira migration
-dotnet ef migrations add InitialCreate --project GestaoEquipamentos.Infrastructure
-
-# aplicar no banco
 dotnet ef database update --project GestaoEquipamentos.Infrastructure
 ```
+
+Para gerar uma nova migration depois de mudar entidades ou configurations:
+
+```bash
+dotnet ef migrations add NomeDaMigration --project GestaoEquipamentos.Infrastructure
+```
+
+Há uma `AppDbContextFactory` que permite rodar esses comandos sem subir a API.
+
+Migrations já aplicadas: `InitialCreate`, `ConfigureEquipment`,
+`ConfigureRemainingEntities`, `AddEquipmentHistoryForeignKey`.
 
 ### 4. Rodar a API
 
@@ -80,13 +88,34 @@ O Swagger ficará disponível em `https://localhost:<porta>/swagger` (ambiente D
 
 ## Configuração
 
-- **Connection string:** a API lê `ConnectionStrings:DefaultConnection` (de `appsettings.json`
-  ou de variável de ambiente). A camada de Infra é registrada via
-  `builder.Services.AddInfrastructure(builder.Configuration)`.
-- A `AppDbContextFactory` (design-time) usa a variável de ambiente `CONNECTION_STRING`
-  e, na ausência dela, um padrão de desenvolvimento igual ao do docker-compose.
+A connection string vem de fontes diferentes conforme o ambiente:
+
+- **Desenvolvimento:** já vem pronta em `appsettings.Development.json` (banco local do
+  docker-compose, porta 5433). Basta `dotnet run` — não precisa configurar nada.
+- **Produção:** o `appsettings.json` base **não contém credenciais**. A connection string
+  é lida de variável de ambiente. Copie `config/.env.example` para `config/.env.prod`
+  (ignorado pelo git) e preencha:
+  - `ConnectionStrings__DefaultConnection` — usada pela API.
+  - `CONNECTION_STRING` — usada pelas migrations (`AppDbContextFactory`).
+
+Para carregar o `config/.env.prod` antes de rodar (PowerShell):
+
+```powershell
+Get-Content config/.env.prod | Where-Object { $_ -match '=' -and $_ -notmatch '^#' } | ForEach-Object {
+    $k, $v = $_ -split '=', 2
+    [Environment]::SetEnvironmentVariable($k, $v)
+}
+dotnet run --project GestaoEquipamentos.API
+```
+
+A camada de Infra é registrada via `builder.Services.AddInfrastructure(builder.Configuration)`.
 
 ## Status
 
 Setup inicial e base da Infraestrutura prontos. Demais camadas em desenvolvimento —
 ver progresso e responsáveis em **[PLANO.tex](PLANO.pdf)**.
+
+Camada Infrastructure concluída: repositórios, DbContext/DbSets, configurations,
+relacionamentos e migrations aplicadas. Demais camadas em desenvolvimento —
+ver progresso e responsáveis em **[PLANO.pdf](PLANO.pdf)**.
+

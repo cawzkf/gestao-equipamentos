@@ -1,8 +1,10 @@
+using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Infrastructure.Persistence;
 using GestaoEquipamentos.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace GestaoEquipamentos.Infrastructure;
 
@@ -30,6 +32,11 @@ public static class DependencyInjection
 
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<IEquipmentHistoryRepository, EquipmentHistoryRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
