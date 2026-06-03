@@ -6,7 +6,7 @@ public interface IEquipmentHistoryService
 {
     Task<IEnumerable<EquipmentHistoryDto>> GetAllAsync();
     Task<IEnumerable<EquipmentHistoryDto>> GetByEquipmentIdAsync(int equipmentId);
-    Task<EquipmentHistoryDto?> GetByIdAsync(int id);
+    Task<EquipmentHistoryDto> GetByIdAsync(int id);
     Task<EquipmentHistoryDto> CreateAsync(CreateEquipmentHistoryDto dto);
     Task DeleteAsync(int id);
 }
