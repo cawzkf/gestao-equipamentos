@@ -8,21 +8,21 @@ API REST em ASP.NET Core, com EF Core, PostgreSQL e autenticação, organizada e
 - .NET 10 / ASP.NET Core
 - Entity Framework Core 10 + Npgsql (PostgreSQL)
 - PostgreSQL 16 (via Docker)
+- JWT Bearer Authentication
+- BCrypt.Net (hash de senhas)
+- Swashbuckle (Swagger/OpenAPI)
 
 ## Estrutura da solution
 
 ```
 GestaoEquipamentos/
 ├── GestaoEquipamentos.sln
-├── GestaoEquipamentos.API/            # Controllers, Swagger, auth, Program.cs
-├── GestaoEquipamentos.Application/     # DTOs, services, interfaces, casos de uso
-├── GestaoEquipamentos.Domain/          # Entidades, enums, regras essenciais
-├── GestaoEquipamentos.Infrastructure/  # DbContext, repositories, migrations (EF Core)
-├── GestaoEquipamentos.Exceptions/      # Exceções customizadas e padronização de erros
-└── docker-compose.yml                  # PostgreSQL
+├── GestaoEquipamentos.API/            # Controllers, Swagger, auth, middlewares, Program.cs
+├── GestaoEquipamentos.Application/    # DTOs, services, interfaces
+├── GestaoEquipamentos.Domain/         # Entidades, enums
+├── GestaoEquipamentos.Infrastructure/ # DbContext, repositories, migrations (EF Core)
+└── GestaoEquipamentos.Exceptions/     # Exceções customizadas e middleware de erros
 ```
-
-> Divisão de tarefas, modelagem das entidades e próximos passos estão em **[PLANO.pdf](PLANO.pdf)**.
 
 ## Pré-requisitos
 
@@ -75,47 +75,97 @@ dotnet ef migrations add NomeDaMigration --project GestaoEquipamentos.Infrastruc
 
 Há uma `AppDbContextFactory` que permite rodar esses comandos sem subir a API.
 
-Migrations já aplicadas: `InitialCreate`, `ConfigureEquipment`,
-`ConfigureRemainingEntities`, `AddEquipmentHistoryForeignKey`.
-
 ### 4. Rodar a API
 
 ```bash
 dotnet run --project GestaoEquipamentos.API
 ```
 
-O Swagger ficará disponível em `https://localhost:<porta>/swagger` (ambiente Development).
+O Swagger ficará disponível em `http://localhost:<porta>/swagger` (ambiente Development).
 
 ## Configuração
 
 A connection string vem de fontes diferentes conforme o ambiente:
 
-- **Desenvolvimento:** já vem pronta em `appsettings.Development.json` (banco local do
-  docker-compose, porta 5433). Basta `dotnet run` — não precisa configurar nada.
-- **Produção:** o `appsettings.json` base **não contém credenciais**. A connection string
-  é lida de variável de ambiente. Copie `config/.env.example` para `config/.env.prod`
-  (ignorado pelo git) e preencha:
+- **Desenvolvimento:** já vem pronta em `appsettings.Development.json` (banco local do docker-compose, porta 5433). Basta `dotnet run` — não precisa configurar nada.
+- **Produção:** o `appsettings.json` base **não contém credenciais**. A connection string é lida de variável de ambiente. Copie `config/.env.example` para `config/.env.prod` (ignorado pelo git) e preencha:
   - `ConnectionStrings__DefaultConnection` — usada pela API.
   - `CONNECTION_STRING` — usada pelas migrations (`AppDbContextFactory`).
 
-Para carregar o `config/.env.prod` antes de rodar (PowerShell):
+## Endpoints
 
-```powershell
-Get-Content config/.env.prod | Where-Object { $_ -match '=' -and $_ -notmatch '^#' } | ForEach-Object {
-    $k, $v = $_ -split '=', 2
-    [Environment]::SetEnvironmentVariable($k, $v)
+### Autenticação — públicos
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/auth/register` | Cria um novo usuário e retorna o token JWT |
+| POST | `/api/auth/login` | Autentica e retorna o token JWT |
+| GET | `/api/auth/me` | Retorna dados do usuário autenticado 🔒 |
+
+### Equipamentos 🔒
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/equipment` | Lista todos os equipamentos |
+| GET | `/api/equipment?categoryId={id}` | Lista equipamentos filtrados por categoria |
+| GET | `/api/equipment/{id}` | Busca equipamento por ID |
+| POST | `/api/equipment` | Cria um novo equipamento |
+| PUT | `/api/equipment/{id}` | Atualiza um equipamento |
+| DELETE | `/api/equipment/{id}` | Remove um equipamento |
+
+### Categorias 🔒
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/category` | Lista todas as categorias |
+| GET | `/api/category/{id}` | Busca categoria por ID |
+| POST | `/api/category` | Cria uma nova categoria |
+| PUT | `/api/category/{id}` | Atualiza uma categoria |
+| DELETE | `/api/category/{id}` | Remove uma categoria |
+
+### Fornecedores 🔒
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/supplier` | Lista todos os fornecedores |
+| GET | `/api/supplier/{id}` | Busca fornecedor por ID |
+| POST | `/api/supplier` | Cria um novo fornecedor |
+| PUT | `/api/supplier/{id}` | Atualiza um fornecedor |
+| DELETE | `/api/supplier/{id}` | Remove um fornecedor |
+
+### Histórico de Equipamentos 🔒
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/equipment-history` | Lista todos os registros de histórico |
+| GET | `/api/equipment-history/{id}` | Busca registro por ID |
+| GET | `/api/equipment/{id}/history` | Lista o histórico de um equipamento específico |
+| POST | `/api/equipment-history` | Registra uma ação no histórico |
+| DELETE | `/api/equipment-history/{id}` | Remove um registro do histórico |
+
+> 🔒 Endpoints protegidos exigem o header `Authorization: Bearer {token}`.
+
+## Autenticação
+
+1. Crie um usuário via `POST /api/auth/register`
+2. Faça login via `POST /api/auth/login` e copie o `token` da resposta
+3. No Swagger, clique em **Authorize** e informe `Bearer {token}`
+4. Todos os endpoints marcados com 🔒 estarão disponíveis
+
+## Tratamento de erros
+
+Todas as exceções são tratadas por um middleware global. Respostas de erro seguem o formato:
+
+```json
+{
+  "message": "Equipamento com identificador '99' não foi encontrado."
 }
-dotnet run --project GestaoEquipamentos.API
 ```
 
-A camada de Infra é registrada via `builder.Services.AddInfrastructure(builder.Configuration)`.
-
-## Status
-
-Setup inicial e base da Infraestrutura prontos. Demais camadas em desenvolvimento —
-ver progresso e responsáveis em **[PLANO.tex](PLANO.pdf)**.
-
-Camada Infrastructure concluída: repositórios, DbContext/DbSets, configurations,
-relacionamentos e migrations aplicadas. Demais camadas em desenvolvimento —
-ver progresso e responsáveis em **[PLANO.pdf](PLANO.pdf)**.
-
+| Situação | Status HTTP |
+|----------|-------------|
+| Recurso não encontrado | 404 |
+| Conflito (ex: e-mail duplicado) | 409 |
+| Credenciais inválidas | 401 |
+| Erro de validação | 400 |
+| Erro interno | 500 |
