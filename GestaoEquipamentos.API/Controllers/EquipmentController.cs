@@ -18,9 +18,12 @@ public class EquipmentController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int? categoryId)
     {
-        var result = await _service.GetAllAsync();
+        var result = categoryId.HasValue
+            ? await _service.GetByCategoryIdAsync(categoryId.Value)
+            : await _service.GetAllAsync();
+
         return Ok(result);
     }
 
