@@ -1,4 +1,5 @@
 using System.Text;
+using GestaoEquipamentos.API.Middlewares;
 using GestaoEquipamentos.Application;
 using GestaoEquipamentos.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -64,6 +65,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

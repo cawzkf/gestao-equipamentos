@@ -1,6 +1,7 @@
 using GestaoEquipamentos.Application.DTOs;
 using GestaoEquipamentos.Application.Interfaces;
 using GestaoEquipamentos.Domain.Entities;
+using GestaoEquipamentos.Exceptions;
 
 namespace GestaoEquipamentos.Application.Services;
 
@@ -47,7 +48,7 @@ public class EquipmentHistoryService : IEquipmentHistoryService
     public async Task DeleteAsync(int id)
     {
         var record = await _repository.GetByIdAsync(id)
-            ?? throw new KeyNotFoundException("Histórico não encontrado.");
+            ?? throw new NotFoundException("Histórico", id);
 
         await _repository.DeleteAsync(record);
     }

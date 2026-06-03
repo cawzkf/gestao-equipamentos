@@ -1,4 +1,4 @@
-﻿using GestaoEquipamentos.Application.DTOs;
+using GestaoEquipamentos.Application.DTOs;
 using GestaoEquipamentos.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,11 +8,11 @@ namespace GestaoEquipamentos.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class EquipmentController : ControllerBase
+public class SupplierController : ControllerBase
 {
-    private readonly IEquipmentService _service;
+    private readonly ISupplierService _service;
 
-    public EquipmentController(IEquipmentService service)
+    public SupplierController(ISupplierService service)
     {
         _service = service;
     }
@@ -32,7 +32,7 @@ public class EquipmentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateEquipmentDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateSupplierDto dto)
     {
         var result = await _service.CreateAsync(dto);
 
@@ -43,7 +43,7 @@ public class EquipmentController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, UpdateEquipmentDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateSupplierDto dto)
     {
         await _service.UpdateAsync(id, dto);
         return NoContent();
