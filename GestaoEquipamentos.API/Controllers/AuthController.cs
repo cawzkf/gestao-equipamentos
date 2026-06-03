@@ -37,8 +37,8 @@ public class AuthController : ControllerBase
     [Authorize]
     public IActionResult Me()
     {
-        var id = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
-        var email = User.FindFirstValue(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email);
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.Email);
         var name = User.FindFirstValue(ClaimTypes.Name);
 
         return Ok(new { Id = id, Email = email, Name = name });
