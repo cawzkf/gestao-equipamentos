@@ -26,10 +26,11 @@ public class EquipmentHistoryService : IEquipmentHistoryService
         return records.Select(MapToDto);
     }
 
-    public async Task<EquipmentHistoryDto?> GetByIdAsync(int id)
+    public async Task<EquipmentHistoryDto> GetByIdAsync(int id)
     {
-        var record = await _repository.GetByIdAsync(id);
-        return record is null ? null : MapToDto(record);
+        var record = await _repository.GetByIdAsync(id)
+            ?? throw new NotFoundException("Histórico", id);
+        return MapToDto(record);
     }
 
     public async Task<EquipmentHistoryDto> CreateAsync(CreateEquipmentHistoryDto dto)
